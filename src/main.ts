@@ -7,6 +7,7 @@ import * as cookieParser from 'cookie-parser';
 // import { SeedService } from './seed/seed.service';
 
 async function bootstrap() {
+  const PORT = process.env.PORT || 3000;
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
   app.use(
@@ -33,6 +34,6 @@ async function bootstrap() {
   );
   // const seedService = app.get(SeedService);
   // await seedService.seed();
-  await app.listen(3000);
+  await app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
 }
 bootstrap();
