@@ -13,6 +13,7 @@ import { UserDetails } from 'src/auth/utils/typesGoogle';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { Vinyl } from 'src/vinyls/vinyl.entity';
 import { MailerService } from '@nestjs-modules/mailer';
+import { LoggerService } from 'src/logger.service';
 
 @Injectable()
 export class UsersService {
@@ -22,6 +23,7 @@ export class UsersService {
     @InjectRepository(Vinyl)
     private readonly vinylsRepository: Repository<Vinyl>,
     private readonly mailerService: MailerService,
+    private readonly logger: LoggerService,
   ) {}
 
   async create(createUserDTO: CreateUserDTO): Promise<User> {
@@ -104,42 +106,51 @@ export class UsersService {
   }
 
   async purchaseVinyl(userId: number, vinylId: number): Promise<Vinyl> {
-    const user = await this.usersRepository.findOne({
-      where: { id: userId },
-      relations: { purchasedVinyls: true },
-    });
-
-    if (!user) {
-      throw new NotFoundException(`User with ID "${userId}" not found`);
-    }
-    const vinyl = await this.vinylsRepository.findOneBy({ id: vinylId });
-    if (!vinyl) {
-      throw new NotFoundException(`Vinyl with ID "${vinylId}" not found`);
-    }
-
-    user.purchasedVinyls.push(vinyl);
-    await this.usersRepository.save(user);
-    await this.vinylsRepository.save(vinyl);
-
-    this.mailerService
-      .sendMail({
-        to: user.email,
-        from: 'leverx.nodemailer@mail.ru',
-        subject: 'Vinyl Purchase Notification',
-        text: `Congratulations! You've made a great purchase!
-
-            Vinyl:
-            name: ${vinyl.name}
-            authorName: ${vinyl.authorName}
-            price: ${vinyl.price}`,
-      })
-      .then((info) => {
-        console.log('Message sent:', info);
-      })
-      .catch((error) => {
-        console.error('Error sending email:', error);
+    try {
+      const user = await this.usersRepository.findOne({
+        where: { id: userId },
+        relations: { purchasedVinyls: true },
       });
 
-    return vinyl;
+      if (!user) {
+        throw new NotFoundException(`User with ID "${userId}" not found`);
+      }
+      const vinyl = await this.vinylsRepository.findOneBy({ id: vinylId });
+      if (!vinyl) {
+        throw new NotFoundException(`Vinyl with ID "${vinylId}" not found`);
+      }
+
+      user.purchasedVinyls.push(vinyl);
+      await this.usersRepository.save(user);
+      await this.vinylsRepository.save(vinyl);
+
+      this.mailerService
+        .sendMail({
+          to: user.email,
+          from: 'leverx.nodemailer@mail.ru',
+          subject: 'Vinyl Purchase Notification',
+          text: `Congratulations! You've made a great purchase!
+  
+              Vinyl:
+              name: ${vinyl.name}
+              authorName: ${vinyl.authorName}
+              price: ${vinyl.price}`,
+        })
+        .then((info) => {
+          console.log('Message sent:', info);
+        })
+        .catch((error) => {
+          console.error('Error sending email:', error);
+        });
+      this.logger.log(
+        `This log from purchaseVinyl User. User with id ${userId} purchase vinyl with id ${vinylId}`,
+      );
+      return vinyl;
+    } catch (error) {
+      this.logger.error(
+        `This is an error log from purchaseVinyl User. Error: ${error}`,
+      );
+      return error.message;
+    }
   }
 }

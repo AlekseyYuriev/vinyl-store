@@ -17,11 +17,15 @@ import { JwtCookieAuthGuard } from 'src/auth/jwt-cookies-guard';
 import { DeleteResult } from 'typeorm';
 import { Vinyl } from 'src/vinyls/vinyl.entity';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { LoggerService } from 'src/logger.service';
 
 @Controller('users')
 @ApiTags('Users')
 export class UsersController {
-  constructor(private usersService: UsersService) {}
+  constructor(
+    private usersService: UsersService,
+    private readonly logger: LoggerService,
+  ) {}
 
   @UseGuards(JwtCookieAuthGuard)
   @Get('/me')
@@ -39,7 +43,14 @@ export class UsersController {
   })
   @ApiResponse({ status: 200 })
   updateUser(@Req() req, @Body() updateUserDto: UpdateUserDto): Promise<User> {
-    return this.usersService.updateUser(req.user.userId, updateUserDto);
+    try {
+      this.logger.log('This log from update User');
+      return this.usersService.updateUser(req.user.userId, updateUserDto);
+    } catch (error) {
+      this.logger.error(
+        `This is an error log from update User. Error: ${error}`,
+      );
+    }
   }
 
   @UseGuards(JwtCookieAuthGuard)
@@ -49,7 +60,16 @@ export class UsersController {
   })
   @ApiResponse({ status: 200 })
   deleteUser(@Req() req): Promise<DeleteResult> {
-    return this.usersService.deleteUser(req.user.userId);
+    try {
+      this.logger.log(
+        `This log from delete User. User with ${req.user.userId} was deleted`,
+      );
+      return this.usersService.deleteUser(req.user.userId);
+    } catch (error) {
+      this.logger.error(
+        `This is an error log from delete User. Error: ${error}`,
+      );
+    }
   }
 
   @UseGuards(JwtCookieAuthGuard)

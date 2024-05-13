@@ -5,6 +5,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Vinyl } from 'src/vinyls/vinyl.entity';
 import { User } from './user.entity';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { LoggerService } from 'src/logger.service';
 
 @Module({
   imports: [
@@ -20,7 +21,7 @@ import { MailerModule } from '@nestjs-modules/mailer';
       },
     }),
   ],
-  providers: [UsersService],
+  providers: [UsersService, LoggerService],
   controllers: [UsersController],
   exports: [UsersService],
 })
