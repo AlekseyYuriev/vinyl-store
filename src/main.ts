@@ -26,7 +26,11 @@ async function bootstrap() {
     origin: 'http://localhost:3000',
     credentials: true,
   });
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+    }),
+  );
   // const seedService = app.get(SeedService);
   // await seedService.seed();
   await app.listen(3000);

@@ -4,12 +4,8 @@ import { DeleteResult, Repository, UpdateResult } from 'typeorm';
 import { CreateVinylDTO } from './dto/create-vinyl.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UpdateVinylDTO } from './dto/update-vinyl.dto';
-import {
-  paginate,
-  IPaginationOptions,
-  Pagination,
-} from 'nestjs-typeorm-paginate';
 import { Admin } from 'src/admins/admin.entity';
+import { GetVinylsFilterDto } from './dto/get-vinyls-filter.dto';
 
 @Injectable()
 export class VinylsService {
@@ -34,7 +30,7 @@ export class VinylsService {
     return await this.vinylsRepository.save(vinyl);
   }
 
-  async findAll(page, limit): Promise<object[]> {
+  async findAll(page: number, limit: number): Promise<object[]> {
     const vinyls = await this.vinylsRepository.find({
       relations: {
         reviews: true,
@@ -90,10 +86,23 @@ export class VinylsService {
     return await this.vinylsRepository.update(id, updateVinylDto);
   }
 
-  // async paginate(options: IPaginationOptions): Promise<Pagination<Vinyl>> {
-  //   const queryBuilder = this.vinylsRepository.createQueryBuilder('c');
-  //   queryBuilder.orderBy('c.id', 'ASC');
+  async getVinyls(filterDto: GetVinylsFilterDto): Promise<Vinyl[]> {
+    const { search, sort, limit, page } = filterDto;
+    const query = this.vinylsRepository
+      .createQueryBuilder('vinyls')
+      .take(limit ? limit : 10)
+      .skip(page ? page * (limit ? limit : 10) : 0)
+      .orderBy(sort ? `vinyls.${sort}` : 'vinyls.id', 'ASC');
 
-  //   return paginate<Vinyl>(queryBuilder, options);
-  // }
+    if (search) {
+      query.where(
+        'LOWER(vinyls.name) LIKE :search OR LOWER(vinyls.authorName) LIKE LOWER(:search)',
+        {
+          search: `%${search.toLowerCase()}%`,
+        },
+      );
+    }
+    const vinyls = await query.getMany();
+    return vinyls;
+  }
 }
