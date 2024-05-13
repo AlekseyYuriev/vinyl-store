@@ -18,7 +18,6 @@ import { CreateVinylDTO } from './dto/create-vinyl.dto';
 import { Vinyl } from './vinyl.entity';
 import { DeleteResult, UpdateResult } from 'typeorm';
 import { UpdateVinylDTO } from './dto/update-vinyl.dto';
-import { Pagination } from 'nestjs-typeorm-paginate';
 import { JwtCookieAuthAdminGuard } from 'src/auth/jwt-cookies-admin-guard';
 
 @Controller('vinyls')
@@ -34,18 +33,29 @@ export class VinylsController {
     return this.vinylsService.create(createVinylDTO, request.user);
   }
 
+  // @Get()
+  // findAll(
+  //   @Query('page', new DefaultValuePipe(1), ParseIntPipe)
+  //   page: number = 1,
+  //   @Query('limit', new DefaultValuePipe(10), ParseIntPipe)
+  //   limit: number = 10,
+  // ): Promise<Pagination<Vinyl>> {
+  //   limit = limit > 100 ? 100 : limit;
+  //   return this.vinylsService.paginate({
+  //     page,
+  //     limit,
+  //   });
+  // }
+
   @Get()
   findAll(
-    @Query('page', new DefaultValuePipe(1), ParseIntPipe)
-    page: number = 1,
+    @Query('page', new DefaultValuePipe(0), ParseIntPipe)
+    page: number = 0,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe)
     limit: number = 10,
-  ): Promise<Pagination<Vinyl>> {
-    limit = limit > 100 ? 100 : limit;
-    return this.vinylsService.paginate({
-      page,
-      limit,
-    });
+  ): Promise<object[]> {
+    limit = limit > 15 ? 15 : limit;
+    return this.vinylsService.findAll(page, limit);
   }
 
   @Get(':id')

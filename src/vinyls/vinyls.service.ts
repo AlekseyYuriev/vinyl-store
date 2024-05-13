@@ -34,25 +34,33 @@ export class VinylsService {
     return await this.vinylsRepository.save(vinyl);
   }
 
-  async findAll(): Promise<object[]> {
+  async findAll(page, limit): Promise<object[]> {
     const vinyls = await this.vinylsRepository.find({
-      relations: { reviews: true },
+      relations: {
+        reviews: true,
+      },
+      take: limit,
+      skip: page * limit,
+      order: {
+        id: 'ASC',
+      },
     });
 
     const result = vinyls.map((vinyl) => {
+      let allScore = 0;
+      let count = 0;
+      vinyl.reviews.forEach((review) => {
+        allScore += review.score;
+        count += 1;
+      });
       return {
         name: vinyl.name,
         authorName: vinyl.authorName,
         description: vinyl.description,
         price: vinyl.price,
-        image: vinyl.image,
         firstReview:
-          vinyl.reviews.length > 0
-            ? {
-                comment: vinyl.reviews[0].comment,
-                score: vinyl.reviews[0].score,
-              }
-            : {},
+          vinyl.reviews.length > 0 ? vinyl.reviews[0].comment : 'no reviews',
+        averageScore: allScore ? (allScore / count).toFixed(2) : 'no scores',
       };
     });
 
@@ -82,10 +90,10 @@ export class VinylsService {
     return await this.vinylsRepository.update(id, updateVinylDto);
   }
 
-  async paginate(options: IPaginationOptions): Promise<Pagination<Vinyl>> {
-    const queryBuilder = this.vinylsRepository.createQueryBuilder('c');
-    queryBuilder.orderBy('c.authorName', 'DESC');
+  // async paginate(options: IPaginationOptions): Promise<Pagination<Vinyl>> {
+  //   const queryBuilder = this.vinylsRepository.createQueryBuilder('c');
+  //   queryBuilder.orderBy('c.id', 'ASC');
 
-    return paginate<Vinyl>(queryBuilder, options);
-  }
+  //   return paginate<Vinyl>(queryBuilder, options);
+  // }
 }
