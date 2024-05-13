@@ -21,11 +21,15 @@ import { DeleteResult, UpdateResult } from 'typeorm';
 import { UpdateVinylDTO } from './dto/update-vinyl.dto';
 import { JwtCookieAuthAdminGuard } from 'src/auth/jwt-cookies-admin-guard';
 import { GetVinylsFilterDto } from './dto/get-vinyls-filter.dto';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller('vinyls')
+@ApiTags('Vinyls')
 export class VinylsController {
   constructor(private vinylsService: VinylsService) {}
   @Post()
+  @ApiOperation({ summary: 'Add new Vinyl to the store' })
+  @ApiResponse({ status: 201 })
   @UseGuards(JwtCookieAuthAdminGuard)
   create(
     @Body() createVinylDTO: CreateVinylDTO,
@@ -36,17 +40,25 @@ export class VinylsController {
   }
 
   @Get()
+  @ApiOperation({
+    summary:
+      'Get vinyl list including price, name, author name, description, the first review from another user, and the average score based on reviews.',
+  })
+  @ApiResponse({ status: 200 })
   findAll(
     @Query('page', new DefaultValuePipe(0), ParseIntPipe)
     page: number = 1,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe)
     limit: number = 10,
   ): Promise<object[]> {
-    limit = limit > 15 ? 15 : limit;
     return this.vinylsService.findAll(page, limit);
   }
 
   @Get('/search')
+  @ApiOperation({
+    summary: 'Find Vinyls with search and sorting.',
+  })
+  @ApiResponse({ status: 200 })
   findVinylsWithSearchAndSorting(
     @Query(ValidationPipe) filterDto: GetVinylsFilterDto,
   ): Promise<Vinyl[]> {
@@ -54,6 +66,10 @@ export class VinylsController {
   }
 
   @Get(':id')
+  @ApiOperation({
+    summary: 'Find Vinyl by ID.',
+  })
+  @ApiResponse({ status: 200 })
   findOne(
     @Param(
       'id',
@@ -65,6 +81,10 @@ export class VinylsController {
   }
 
   @Put(':id')
+  @ApiOperation({
+    summary: 'Update Vinyl in the store.',
+  })
+  @ApiResponse({ status: 200 })
   @UseGuards(JwtCookieAuthAdminGuard)
   update(
     @Param('id', ParseIntPipe) id: number,
@@ -74,6 +94,10 @@ export class VinylsController {
   }
 
   @Delete(':id')
+  @ApiOperation({
+    summary: 'Delete Vinyl from the store.',
+  })
+  @ApiResponse({ status: 200 })
   @UseGuards(JwtCookieAuthAdminGuard)
   delete(@Param('id', ParseIntPipe) id: number): Promise<DeleteResult> {
     return this.vinylsService.remove(id);

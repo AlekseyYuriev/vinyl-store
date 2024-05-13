@@ -22,5 +22,3 @@ export class Admin {
   })
   vinyls: Vinyl[];
 }
-
-// eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImFkbWluQGdtYWlsLmNvbSIsInVzZXJJZCI6MSwiYWRtaW5JZCI6MSwiaWF0IjoxNzE1MDIyMjg0LCJleHAiOjE3MTUxMDg2ODR9.RpdAaaCtR3DtXsU9s55EhFwOvX31j-ZOsrK8UUfwxyI

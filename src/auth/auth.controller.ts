@@ -6,14 +6,18 @@ import { UsersService } from 'src/users/users.service';
 import { AuthService } from './auth.service';
 import { GoogleAuthGuard } from './utils/Guards';
 import { Response } from 'express';
+import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 @Controller('auth')
+@ApiTags('Authorization')
 export class AuthController {
   constructor(
     private usersService: UsersService,
     private authService: AuthService,
   ) {}
   @Post('register')
+  @ApiOperation({ summary: 'Register new User' })
+  @ApiResponse({ status: 201 })
   register(
     @Body()
     createUserDTO: CreateUserDTO,
@@ -22,6 +26,7 @@ export class AuthController {
   }
 
   @Post('login')
+  @ApiOperation({ summary: 'Login a user' })
   login(
     @Body()
     loginUserDTO: LoginUserDTO,
@@ -31,6 +36,7 @@ export class AuthController {
   }
 
   @Post('logout')
+  @ApiOperation({ summary: 'Logout a user' })
   async logout(@Res({ passthrough: true }) response: Response) {
     response.clearCookie('jwt');
 

@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { User } from 'src/users/user.entity';
 import { Vinyl } from 'src/vinyls/vinyl.entity';
 import {
@@ -21,9 +22,17 @@ export class Review {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @ApiProperty({
+    example: 'Not bad!',
+    description: 'provide the comment from the user to the vinyl',
+  })
   @Column()
   comment: string;
 
+  @ApiProperty({
+    example: '4',
+    description: 'provide the score from the user to the vinyl',
+  })
   @Column({
     type: 'enum',
     enum: Score,

@@ -35,8 +35,8 @@ export class VinylsService {
       relations: {
         reviews: true,
       },
-      take: limit,
-      skip: page * limit,
+      take: limit ? limit : 10,
+      skip: page > 1 ? (page - 1) * (limit ? limit : 10) : 0,
       order: {
         id: 'ASC',
       },
