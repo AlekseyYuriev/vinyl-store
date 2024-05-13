@@ -1,10 +1,13 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Delete,
+  Get,
   Param,
   ParseIntPipe,
   Post,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -35,5 +38,16 @@ export class ReviewsController {
   @UseGuards(JwtCookieAuthAdminGuard)
   remove(@Param('id', ParseIntPipe) id: number): Promise<DeleteResult> {
     return this.reviewsService.remove(id);
+  }
+
+  @Get('/:id')
+  getReviewsByVinylId(
+    @Param('id', ParseIntPipe) id: number,
+    @Query('page', new DefaultValuePipe(0), ParseIntPipe)
+    page: number = 1,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe)
+    limit: number = 1,
+  ): Promise<object[]> {
+    return this.reviewsService.getReviewsByVinylId(id, page, limit);
   }
 }

@@ -38,7 +38,7 @@ export class VinylsController {
   @Get()
   findAll(
     @Query('page', new DefaultValuePipe(0), ParseIntPipe)
-    page: number = 0,
+    page: number = 1,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe)
     limit: number = 10,
   ): Promise<object[]> {

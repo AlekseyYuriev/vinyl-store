@@ -19,7 +19,11 @@ export class ReviewsService {
     private userRepository: Repository<User>,
   ) {}
 
-  async create(userId, vinylId, reviewDTO: CreateReviewDTO): Promise<Review> {
+  async create(
+    userId: number,
+    vinylId: number,
+    reviewDTO: CreateReviewDTO,
+  ): Promise<Review> {
     const review = new Review();
     review.comment = reviewDTO.comment;
     review.score = reviewDTO.score;
@@ -43,5 +47,38 @@ export class ReviewsService {
       throw new NotFoundException(`Review with ID "${reviewId}" not found`);
     }
     return await this.reviewRepository.delete(reviewId);
+  }
+
+  async getReviewsByVinylId(
+    vinylId: number,
+    page: number,
+    limit: number,
+  ): Promise<object[]> {
+    const reviews = await this.reviewRepository.find({
+      relations: {
+        user: true,
+        vinyl: true,
+      },
+      where: {
+        vinyl: {
+          id: vinylId,
+        },
+      },
+      take: limit,
+      skip: page > 1 ? (page - 1) * limit : 0,
+    });
+
+    const result = reviews.map((review) => {
+      return {
+        commentedByUser: `${review.user.firstName} ${review.user.lastName}`,
+        comment: review.comment,
+        score: review.score,
+        vinylName: review.vinyl.name,
+        vinylAuthorName: review.vinyl.authorName,
+        vinylPrice: review.vinyl.price,
+      };
+    });
+
+    return result;
   }
 }

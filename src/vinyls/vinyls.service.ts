@@ -91,7 +91,7 @@ export class VinylsService {
     const query = this.vinylsRepository
       .createQueryBuilder('vinyls')
       .take(limit ? limit : 10)
-      .skip(page ? page * (limit ? limit : 10) : 0)
+      .skip(page > 1 ? (page - 1) * (limit ? limit : 10) : 0)
       .orderBy(sort ? `vinyls.${sort}` : 'vinyls.id', 'ASC');
 
     if (search) {
