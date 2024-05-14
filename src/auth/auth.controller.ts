@@ -7,6 +7,7 @@ import { AuthService } from './auth.service';
 import { GoogleAuthGuard } from './utils/Guards';
 import { Response } from 'express';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { LoggerService } from 'src/logger.service';
 
 @Controller('auth')
 @ApiTags('Authorization')
@@ -14,6 +15,7 @@ export class AuthController {
   constructor(
     private usersService: UsersService,
     private authService: AuthService,
+    private readonly logger: LoggerService,
   ) {}
   @Post('register')
   @ApiOperation({ summary: 'Register new User' })
@@ -22,6 +24,7 @@ export class AuthController {
     @Body()
     createUserDTO: CreateUserDTO,
   ): Promise<User> {
+    this.logger.log('This log from register new User');
     return this.usersService.create(createUserDTO);
   }
 

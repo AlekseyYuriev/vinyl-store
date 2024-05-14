@@ -18,11 +18,15 @@ import { JwtCookieAuthGuard } from 'src/auth/jwt-cookies-guard';
 import { DeleteResult } from 'typeorm';
 import { JwtCookieAuthAdminGuard } from 'src/auth/jwt-cookies-admin-guard';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { LoggerService } from 'src/logger.service';
 
 @Controller('reviews')
 @ApiTags('Reviews')
 export class ReviewsController {
-  constructor(private reviewsService: ReviewsService) {}
+  constructor(
+    private reviewsService: ReviewsService,
+    private readonly logger: LoggerService,
+  ) {}
 
   @ApiOperation({ summary: 'Create a review to vinyl' })
   @ApiResponse({ status: 201 })
@@ -34,7 +38,7 @@ export class ReviewsController {
     @Body()
     createReviewDTO: CreateReviewDTO,
   ): Promise<Review> {
-    console.log(req.user);
+    this.logger.log('This log from create new Review');
     return this.reviewsService.create(req.user.userId, id, createReviewDTO);
   }
 
@@ -43,6 +47,7 @@ export class ReviewsController {
   @Delete('/:id')
   @UseGuards(JwtCookieAuthAdminGuard)
   remove(@Param('id', ParseIntPipe) id: number): Promise<DeleteResult> {
+    this.logger.log(`This log from delete Review with ID ${id}`);
     return this.reviewsService.remove(id);
   }
 

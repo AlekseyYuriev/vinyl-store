@@ -22,11 +22,15 @@ import { UpdateVinylDTO } from './dto/update-vinyl.dto';
 import { JwtCookieAuthAdminGuard } from 'src/auth/jwt-cookies-admin-guard';
 import { GetVinylsFilterDto } from './dto/get-vinyls-filter.dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { LoggerService } from 'src/logger.service';
 
 @Controller('vinyls')
 @ApiTags('Vinyls')
 export class VinylsController {
-  constructor(private vinylsService: VinylsService) {}
+  constructor(
+    private vinylsService: VinylsService,
+    private readonly logger: LoggerService,
+  ) {}
   @Post()
   @ApiOperation({ summary: 'Add new Vinyl to the store' })
   @ApiResponse({ status: 201 })
@@ -36,6 +40,7 @@ export class VinylsController {
     @Request()
     request,
   ): Promise<Vinyl> {
+    this.logger.log('This log from create Vinyl');
     return this.vinylsService.create(createVinylDTO, request.user);
   }
 
@@ -90,6 +95,7 @@ export class VinylsController {
     @Param('id', ParseIntPipe) id: number,
     @Body() updateVinylDto: UpdateVinylDTO,
   ): Promise<UpdateResult> {
+    this.logger.log('This log from update Vinyl');
     return this.vinylsService.update(id, updateVinylDto);
   }
 
@@ -100,6 +106,7 @@ export class VinylsController {
   @ApiResponse({ status: 200 })
   @UseGuards(JwtCookieAuthAdminGuard)
   delete(@Param('id', ParseIntPipe) id: number): Promise<DeleteResult> {
+    this.logger.log(`This log from delete Vinyl with ID ${id}`);
     return this.vinylsService.remove(id);
   }
 }

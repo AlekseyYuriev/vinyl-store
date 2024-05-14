@@ -8,6 +8,7 @@ import { JwtStrategy } from './jwt-strategy';
 import { AdminsModule } from 'src/admins/admins.module';
 import { GoogleStrategy } from './utils/GoogleStrategy';
 import { SessionSerializer } from './utils/Serializer';
+import { LoggerService } from 'src/logger.service';
 
 @Module({
   imports: [
@@ -20,7 +21,13 @@ import { SessionSerializer } from './utils/Serializer';
       },
     }),
   ],
-  providers: [AuthService, JwtStrategy, GoogleStrategy, SessionSerializer],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    GoogleStrategy,
+    SessionSerializer,
+    LoggerService,
+  ],
   controllers: [AuthController],
   exports: [AuthService],
 })
